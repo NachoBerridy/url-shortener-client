@@ -13,7 +13,7 @@ export default function UrlForm({ placeholder, buttonText, onClick }: PrimaryInp
   const [value, setValue] = useState('');
 
   return (
-    <form className="bg-white shadow-md rounded p-4 mb-4 flex gap-0">
+    <form className="dark:bg-white bg-slate-800 shadow-lg rounded p-4 mb-4 flex gap-0">
       <InputField
         type="text"
         placeholder={placeholder}
