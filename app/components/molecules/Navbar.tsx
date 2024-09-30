@@ -27,7 +27,7 @@ export default function NavBar({ src }: NavBarProps) {
       rounded-3xl shadow-lg z-10 
     ">
       <div className="flex items-center flex-shrink-0 mr-6">
-        <span className="font-semibold text-xl tracking-tight">Shor App</span>
+        <span className="font-semibold text-xl tracking-tight">Shortr App</span>
       </div>
       <div className="flex items-center">
         {
