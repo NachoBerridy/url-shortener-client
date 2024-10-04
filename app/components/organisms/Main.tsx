@@ -1,14 +1,70 @@
 import UrlForm from "../molecules/UrlForm";
+import { useEffect, useState } from "react";
+import { useLoaderData, Link } from "@remix-run/react";
+import { User } from "../../interfaces/user";
+import { getUser } from "../../services/user";
+import SocialNetworks from "../molecules/socialNetworks";
 
 export default function Main() {
+
+  const data = useLoaderData<{ auth_token?: string, user?: User }>();
+  const [user, setUser] = useState<User | null>(null);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      try {
+        if (data?.auth_token) {
+          const userData = await getUser(data.auth_token);
+          if (!userData.error) {
+            setUser(userData);
+          } else {
+            console.error(userData.error);
+          }
+        }
+      } catch (error) {
+        console.error(error);
+      }
+    };
+
+    fetchUser();
+  }, [data]);
+
   return (
-    <main className="flex flex-col gap-8  items-start justify-start mt-10 w-full max-w-[1020px]">
-      <h1 className="text-4xl font-bold text-center">URL Shortener</h1>
-      <UrlForm
-        placeholder="Enter a URL"
-        buttonText="Shorten"
-        onClick={() => { }}
-      />
+    <main className="flex flex-col gap-8  items-start justify-start mt-10 w-full max-w-[1020px] relative p-4">
+
+      <h1
+        className="
+          text-5xl text-center font-bold from-teal-500 via-cyan-500 to-blue-500 bg-gradient-to-r bg-clip-text text-transparent
+        ">
+        Shortener App
+      </h1>
+      <SocialNetworks />
+      <section className="flex flex-col gap-8 pt-4 relative w-full items-start justify-start">
+        {
+          !user &&
+          <div
+            className="
+            w-full h-full flex items-center justify-center absolute top-0 left-0 bg-opacity-50
+            bg-gray-800 backdrop-filter backdrop-blur-md z-10
+          "
+          >
+            <h2 className="text-4xl font-bold text-center">
+              Please{' '}
+              <Link to="/login" className="text-blue-500 hover underline">
+                login
+              </Link>
+              {' '}to use the URL Shortener
+            </h2>
+          </div>
+        }
+        <h2 className="text-4xl font-bold text-center">URL Shortener</h2>
+        <UrlForm
+          placeholder="Enter a URL"
+          buttonText="Shorten"
+          onClick={() => { }}
+          user={user}
+        />
+      </section>
     </main>
   )
 }
