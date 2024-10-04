@@ -1,6 +1,6 @@
 import Signup from "../molecules/Signup";
 import Login from "../molecules/Login";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 
 interface AuthProps {
   click: (showLogin: boolean) => void;
@@ -29,7 +29,10 @@ export default function Auth({ click }: AuthProps) {
         }}
       >
       </div>
-      {isLogin ? <Login /> : <Signup changeToLogin={() => setIsLogin(true)} />}
+      {isLogin ?
+        <Login changeToSignup={() => setIsLogin(false)} /> :
+        <Signup changeToLogin={() => setIsLogin(true)} />
+      }
     </div>
   )
 }
