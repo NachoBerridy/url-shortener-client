@@ -1,15 +1,16 @@
 interface PrimaryButtonProps {
   text: string;
-  type: 'button' | 'submit' | 'reset';
-  onClick?: () => void;
+  onClick?: (e: React.MouseEvent<HTMLButtonElement, MouseEvent>) => void;
+  disabled?: boolean;
 }
 
-export default function PrimaryButton({ text, type, onClick }: PrimaryButtonProps) {
+export default function PrimaryButton({ text, onClick, disabled }: PrimaryButtonProps) {
   return (
     <button
-      type={type || 'button'}
-      onClick={onClick}
+      type='button'
+      onClick={onClick ? onClick : () => { }}
       className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded"
+      disabled={disabled ? true : false}
     >
       {text}
     </button>
