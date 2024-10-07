@@ -6,12 +6,14 @@ import {
   ScrollRestoration,
 } from "@remix-run/react";
 import type { LinksFunction } from "@remix-run/node";
+import urlIcon from "./assets/icons/url-icon.ico";
 
 
 import "./tailwind.css";
 
 export const links: LinksFunction = () => [
   { rel: "preconnect", href: "https://fonts.googleapis.com" },
+  { rel: "icon", href: urlIcon },
   {
     rel: "preconnect",
     href: "https://fonts.gstatic.com",

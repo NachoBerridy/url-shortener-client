@@ -1,10 +1,13 @@
-import { User } from "../../interfaces/user"
-import PrimaryButton from "../atoms/PrimaryButton"
-import { Link } from "@remix-run/react"
+import { User } from "../../interfaces/user";
+import PrimaryButton from "../atoms/PrimaryButton";
+import { Link, useNavigate, Form } from "@remix-run/react";
 
 export default function ProfileNav({ user }: { user: User | null }) {
+  const navigate = useNavigate();
 
-
+  const handleLogout = async () => {
+    navigate('/login');
+  }
 
   return (
     <nav
@@ -19,7 +22,13 @@ export default function ProfileNav({ user }: { user: User | null }) {
         user ?
           (<ul>
             <li><Link to="/dashboard">Dashboard</Link></li>
-            <li>Logout</li>
+            <li>
+              <Form method="post" action="/logout">
+                <button type="submit" onClick={handleLogout}>
+                  Logout
+                </button>
+              </Form>
+            </li>
           </ul>) :
           (
             <Link to="/login">
