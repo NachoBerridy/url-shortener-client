@@ -3,7 +3,7 @@ import Main from "../components/organisms/Main";
 import Header from "../components/organisms/Header";
 import { ToastContainer } from 'react-toastify';
 import 'react-toastify/dist/ReactToastify.css';
-import { getSession } from "../services/session.server";
+import { getSession } from "../services/session";
 
 export const meta: MetaFunction = () => {
   return [

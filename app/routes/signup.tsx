@@ -1,7 +1,7 @@
 import { Form, Link } from "@remix-run/react";
-import { ActionFunctionArgs, LoaderFunctionArgs } from "@remix-run/node";
+import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/node";
 import axios from "axios";
-import { getSession, commitSession } from "../services/session.server";
+import { getSession, commitSession } from "../services/session";
 import Header from "../components/organisms/Header";
 import { useEffect, useState } from "react";
 import { userSignup } from "../interfaces/user";
@@ -26,7 +26,7 @@ export async function action({ request }: ActionFunctionArgs) {
 
     const session = await getSession();
     session.set('auth_token', response.data.access_token);
-    return new Response('', {
+    return redirect('/dashboard', {
       headers: {
         'set-cookie': await commitSession(session),
       }
