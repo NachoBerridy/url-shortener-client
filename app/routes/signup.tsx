@@ -13,28 +13,29 @@ export async function action({ request }: ActionFunctionArgs) {
   const { username, password, full_name, email } = Object.fromEntries(formData);
 
   const endpoint = "http://127.00.1:8000/users/signup";
-  const response = await axios.post(
-    endpoint,
-    { username, password, full_name, email },
-    {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    });
-  if (response.status == 200) {
-
-
-    const session = await getSession();
-    session.set('auth_token', response.data.access_token);
-    return redirect('/dashboard', {
-      headers: {
-        'set-cookie': await commitSession(session),
-      }
-    });
-  } else {
-    return new Response('Unauthorized', {
-      status: 401
-    });
+  try {
+    const response = await axios.post(
+      endpoint,
+      { username, password, full_name, email },
+      {
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      });
+    if (response.status == 200) {
+      const session = await getSession();
+      session.set('auth_token', response.data.access_token);
+      return redirect('/dashboard', {
+        headers: {
+          'set-cookie': await commitSession(session),
+        }
+      });
+    } else {
+      return null;
+    }
+  } catch (error) {
+    console.log(error);
+    return null;
   }
 }
 
