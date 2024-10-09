@@ -1,56 +1,66 @@
 import { Form, Link } from "@remix-run/react";
-import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import axios from "axios";
+import { ActionFunctionArgs, LoaderFunctionArgs, redirect, json } from "@remix-run/node";
+import axios, { isAxiosError } from "axios";
 import { getSession, commitSession } from "../services/session";
 import Header from "../components/organisms/Header";
 import { useState, useEffect } from "react";
 import { userLogin } from "../interfaces/user";
 import InputField from "../components/atoms/InputField";
 
-
+// Acción del formulario
 export async function action({ request }: ActionFunctionArgs) {
   console.log("action");
   const formData = await request.formData();
   const { username, password } = Object.fromEntries(formData);
 
-  const endpoint = "http://127.00.1:8000/users/token";
-  const response = await axios.post(
-    endpoint,
-    { username, password },
-    {
-      headers: {
-        'Content-Type': 'application/x-www-form-urlencoded'
-      }
-    });
-  if (response.status == 200) {
+  const endpoint = "http://127.0.0.1:8000/users/token";
 
-
-    const session = await getSession();
-    session.set('auth_token', response.data.access_token);
-    return redirect('/dashboard', {
-      headers: {
-        'set-cookie': await commitSession(session),
+  try {
+    // Intentamos hacer la petición al backend
+    const response = await axios.post(
+      endpoint,
+      { username, password },
+      {
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        }
       }
-    });
-  } else {
-    return new Response('Unauthorized', {
-      status: 401
-    });
+    );
+
+    // Si la respuesta es exitosa, guardamos el token en la sesión y redirigimos
+    if (response.status === 200) {
+      const session = await getSession();
+      session.set('auth_token', response.data.access_token);
+      return redirect('/dashboard', {
+        headers: {
+          'set-cookie': await commitSession(session),
+        },
+      });
+    }
+  } catch (error) {
+    // Si ocurre un error, lo capturamos y devolvemos el mensaje de error al frontend
+    if (isAxiosError(error) && error.response?.status === 401) {
+      return json({ error: "Usuario o contraseña incorrectos" }, { status: 401 });
+    }
+
+    return json({ error: "Error interno del servidor" }, { status: 500 });
   }
 }
 
+// Cargador (loader) del componente
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
   return session.data;
 }
 
+// Componente de Login
 export default function Login() {
-
   const [disabled, setDisabled] = useState(true);
   const [user, setUser] = useState<userLogin>({
     username: "",
     password: ""
   });
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // Estado para manejar el error
 
   useEffect(() => {
     if (user.username.length > 0 && user.password.length > 0) {
@@ -59,6 +69,11 @@ export default function Login() {
       setDisabled(true);
     }
   }, [user]);
+
+  // Manejar el error desde el action
+  const handleError = (error: string | null) => {
+    setErrorMessage(error);
+  };
 
   return (
     <body className="
@@ -74,10 +89,23 @@ export default function Login() {
           space-y-4 bg-gray-100 dark:bg-[#00091d] rounded-lg z-40 text-blue-500
           w-1/3 flex flex-col p-4 justify-center items-center shadow-lg shadow-black
           "
+          onSubmit={(e) => {
+            // Cuando se envía el formulario, reiniciamos el mensaje de error
+            setErrorMessage(null);
+          }}
+          replace
         >
           <h2 className="text-2xl text-center font-black">
             Login
           </h2>
+
+          {/* Mostrar mensaje de error si existe */}
+          {errorMessage && (
+            <p className="text-red-500 text-sm">
+              {errorMessage}
+            </p>
+          )}
+
           <InputField
             type="text"
             placeholder="Username"
@@ -94,6 +122,7 @@ export default function Login() {
             onChange={(e) => setUser({ ...user, password: e.target.value })}
             className="border-2 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
           />
+
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer"
             disabled={disabled}
@@ -107,12 +136,11 @@ export default function Login() {
               className="text-blue-500 cursor-pointer bg-transparent border-none p-0 m-0"
               to="/signup"
             >
-              Login
+              Sign up
             </Link>
           </p>
         </Form>
       </main>
     </body>
-  )
-
+  );
 }

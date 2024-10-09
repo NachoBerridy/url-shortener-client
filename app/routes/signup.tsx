@@ -1,19 +1,21 @@
 import { Form, Link } from "@remix-run/react";
-import { ActionFunctionArgs, LoaderFunctionArgs, redirect } from "@remix-run/node";
-import axios from "axios";
+import { ActionFunctionArgs, LoaderFunctionArgs, redirect, json } from "@remix-run/node";
+import axios, { isAxiosError } from "axios";
 import { getSession, commitSession } from "../services/session";
 import Header from "../components/organisms/Header";
 import { useEffect, useState } from "react";
 import { userSignup } from "../interfaces/user";
 import InputField from "../components/atoms/InputField";
 
+// Acción del formulario
 export async function action({ request }: ActionFunctionArgs) {
-  console.log("action");
   const formData = await request.formData();
   const { username, password, full_name, email } = Object.fromEntries(formData);
 
-  const endpoint = "http://127.00.1:8000/users/signup";
+  const endpoint = "http://127.0.0.1:8000/users/signup"; // Asegúrate de corregir la URL del backend
+
   try {
+    // Intentamos hacer la petición al backend
     const response = await axios.post(
       endpoint,
       { username, password, full_name, email },
@@ -21,8 +23,11 @@ export async function action({ request }: ActionFunctionArgs) {
         headers: {
           'Content-Type': 'application/json'
         }
-      });
-    if (response.status == 200) {
+      }
+    );
+
+    // Si la respuesta es exitosa, guardamos el token en la sesión y redirigimos
+    if (response.status === 200) {
       const session = await getSession();
       session.set('auth_token', response.data.access_token);
       return redirect('/dashboard', {
@@ -30,35 +35,35 @@ export async function action({ request }: ActionFunctionArgs) {
           'set-cookie': await commitSession(session),
         }
       });
-    } else {
-      return null;
     }
   } catch (error) {
-    console.log(error);
-    return null;
+    // Si ocurre un error, lo capturamos y devolvemos el mensaje de error al frontend
+    if (isAxiosError(error) && error.response?.status === 400) {
+      return json({ error: "Error al crear la cuenta. Verifica tus datos." }, { status: 400 });
+    }
+
+    // Error genérico si el servidor falla
+    return json({ error: "Error en el servidor. Inténtalo más tarde." }, { status: 500 });
   }
 }
 
+// Loader (para sesiones si es necesario en el futuro)
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
   return session.data;
 }
 
-
-
-
-
+// Componente de Signup
 export default function Signup() {
-
   const [disabled, setDisabled] = useState(true);
   const [repeatedPassword, setRepeatedPassword] = useState("");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null); // Estado para manejar errores
   const [user, setUser] = useState<userSignup>({
     email: "",
     password: "",
     full_name: "",
     username: ""
   });
-
 
   useEffect(() => {
     if (user.email && user.password && user.full_name && user.username && repeatedPassword === user.password) {
@@ -82,10 +87,22 @@ export default function Signup() {
           space-y-4 bg-gray-100 dark:bg-[#00091d] rounded-lg z-40 text-blue-500
           w-1/3 flex flex-col p-4 justify-center items-center shadow-lg shadow-black
           "
+          onSubmit={() => {
+            // Reiniciar el mensaje de error al intentar registrarse nuevamente
+            setErrorMessage(null);
+          }}
         >
           <h1 className="text-2xl text-center font-black">
             Sign Up
           </h1>
+
+          {/* Mostrar mensaje de error si existe */}
+          {errorMessage && (
+            <p className="text-red-500 text-sm">
+              {errorMessage}
+            </p>
+          )}
+
           <InputField
             type="text"
             placeholder="Username"
@@ -135,7 +152,7 @@ export default function Signup() {
           </button>
 
           <p className="text-sm">
-            Don&apos;t have an account? &nbsp;
+            Already have an account? &nbsp;
             <Link
               className="text-blue-500 cursor-pointer bg-transparent border-none p-0 m-0"
               to="/login"
@@ -146,6 +163,5 @@ export default function Signup() {
         </Form>
       </main>
     </body>
-  )
-
+  );
 }
