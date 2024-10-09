@@ -5,7 +5,7 @@ import { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import Header from "../components/organisms/Header";
 import { User } from "../interfaces/user";
-
+import DashboardMain from "~/components/organisms/DashboardMain";
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
   return session.data;
@@ -52,9 +52,7 @@ export default function Dashboard() {
     "
     >
       <Header src={null} />
-      <main >
-
-      </main>
+      <DashboardMain />
     </body>
   );
 }
