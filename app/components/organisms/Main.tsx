@@ -4,11 +4,37 @@ import { useLoaderData, Link } from "@remix-run/react";
 import { User } from "../../interfaces/user";
 import { getUser } from "../../services/user";
 import SocialNetworks from "../molecules/socialNetworks";
+// IMport toastify
+import { toast } from "react-toastify";
 
 export default function Main() {
 
   const data = useLoaderData<{ auth_token?: string, user?: User }>();
   const [user, setUser] = useState<User | null>(null);
+
+
+  const generateShortUrl = async (url: string, name: string) => {
+    const endpoint = "http://127.0.0.1:8000/url/create";
+
+    const response = await fetch(endpoint, {
+      method: 'POST',
+      body: JSON.stringify({ "long_url": url, name }),
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${data.auth_token}`
+      }
+    });
+
+    // Toast if the response is not ok
+    if (!response.ok) {
+      toast.error('Error shortening the URL');
+    } else {
+      toast.success('URL shortened successfully');
+    }
+  }
+
+
+
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -28,6 +54,7 @@ export default function Main() {
 
     fetchUser();
   }, [data]);
+
 
   return (
     <main className="flex flex-col gap-8  items-start justify-start mt-10 w-full max-w-[1020px] relative p-4">
@@ -61,7 +88,7 @@ export default function Main() {
         <UrlForm
           placeholder="Enter a URL"
           buttonText="Shorten"
-          onClick={() => { }}
+          onClick={(url: string, name: string) => generateShortUrl(url, name)}
           user={user}
         />
       </section>
