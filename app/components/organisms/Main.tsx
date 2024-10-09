@@ -4,7 +4,7 @@ import { useLoaderData, Link } from "@remix-run/react";
 import { User } from "../../interfaces/user";
 import { getUser } from "../../services/user";
 import SocialNetworks from "../molecules/socialNetworks";
-// IMport toastify
+
 import { toast } from "react-toastify";
 
 export default function Main() {

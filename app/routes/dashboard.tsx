@@ -11,11 +11,18 @@ export async function loader({ request }: LoaderFunctionArgs) {
   return session.data;
 }
 
+interface url {
+  clicks: number;
+  long_url: string;
+  short_url: string;
+  name: string;
+}
+
 export default function Dashboard() {
 
   const data = useLoaderData<{ auth_token?: string, user?: User }>();
   const [user, setUser] = useState<User | null>(null);
-  const [urls, setUrls] = useState<any[]>([]);
+  const [urls, setUrls] = useState<url[]>([]);
   useEffect(() => {
     console.log(data);
     const fetchUser = async () => {
@@ -52,7 +59,7 @@ export default function Dashboard() {
     "
     >
       <Header src={null} />
-      <DashboardMain />
+      <DashboardMain urls={urls} user={user} />
     </body>
   );
 }

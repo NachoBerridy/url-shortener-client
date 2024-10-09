@@ -7,7 +7,9 @@ interface UrlCardProps {
 
 export default function UrlCard({ shortUrl, originalUrl, name, clickCount }: UrlCardProps) {
 
+  const api = "http://127.0.0.1:8000/"
 
+  shortUrl = api + shortUrl
 
   return (
 
@@ -21,9 +23,11 @@ export default function UrlCard({ shortUrl, originalUrl, name, clickCount }: Url
         {name}
       </h5>
       <p className="font-normal text-gray-700 dark:text-gray-400">
+        Short URL:{" "}
         <a href={shortUrl} className="text-blue-500 underline">{shortUrl}</a>
       </p>
       <p className="text-gray-500 dark:text-gray-300">
+        Original URL:{" "}
         <a href={originalUrl} className="text-blue-500 underline">{originalUrl}</a>
       </p>
       <div className="mt-4">
