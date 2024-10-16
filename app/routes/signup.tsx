@@ -109,7 +109,7 @@ export default function Signup() {
             name="username"
             value={user.username}
             onChange={(e) => setUser({ ...user, username: e.target.value })}
-            className="border-2 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
+            className="border-2 px-4 py-4 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
           />
           <InputField
             type="text"
@@ -117,7 +117,7 @@ export default function Signup() {
             placeholder="Full Name"
             value={user.full_name}
             onChange={(e) => setUser({ ...user, full_name: e.target.value })}
-            className="border-2 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
+            className="border-2 px-4 py-4 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
           />
           <InputField
             type="email"
@@ -125,7 +125,7 @@ export default function Signup() {
             placeholder="email@example.com"
             value={user.email}
             onChange={(e) => setUser({ ...user, email: e.target.value })}
-            className="border-2 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
+            className="border-2 px-4 py-4 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
           />
           <InputField
             type="password"
@@ -133,7 +133,7 @@ export default function Signup() {
             name="password"
             value={user.password}
             onChange={(e) => setUser({ ...user, password: e.target.value })}
-            className="border-2 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
+            className="border-2 px-4 py-4 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
           />
           <InputField
             type="password"
@@ -141,7 +141,7 @@ export default function Signup() {
             name="password"
             value={repeatedPassword}
             onChange={(e) => setRepeatedPassword(e.target.value)}
-            className="border-2 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
+            className="border-2 px-4 py-4 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
           />
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white disabled:cursor-not-allowed 

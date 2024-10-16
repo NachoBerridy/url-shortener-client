@@ -1,4 +1,4 @@
-import { Form, Link } from "@remix-run/react";
+import { Form, Link, useActionData } from "@remix-run/react";
 import { ActionFunctionArgs, LoaderFunctionArgs, redirect, json } from "@remix-run/node";
 import axios, { isAxiosError } from "axios";
 import { getSession, commitSession } from "../services/session";
@@ -9,31 +9,34 @@ import InputField from "../components/atoms/InputField";
 
 // Acción del formulario
 export async function action({ request }: ActionFunctionArgs) {
-  console.log("action");
   const formData = await request.formData();
   const { username, password } = Object.fromEntries(formData);
 
-  const endpoint = "http://127.0.0.1:8000/users/token";
-
+  const endpoint = "http://127.0.0.1:8000/" + "users/token";
   try {
+
+
+
     // Intentamos hacer la petición al backend
     const response = await axios.post(
       endpoint,
-      { username, password },
+      new URLSearchParams({
+        username: username as string,
+        password: password as string,
+      }),
       {
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded'
-        }
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
       }
     );
-
     // Si la respuesta es exitosa, guardamos el token en la sesión y redirigimos
     if (response.status === 200) {
       const session = await getSession();
-      session.set('auth_token', response.data.access_token);
-      return redirect('/dashboard', {
+      session.set("auth_token", response.data.access_token);
+      return redirect("/dashboard", {
         headers: {
-          'set-cookie': await commitSession(session),
+          "Set-Cookie": await commitSession(session),
         },
       });
     }
@@ -49,12 +52,20 @@ export async function action({ request }: ActionFunctionArgs) {
 
 // Cargador (loader) del componente
 export async function loader({ request }: LoaderFunctionArgs) {
-  const session = await getSession(request.headers.get('Cookie'));
-  return session.data;
+  const session = await getSession(request.headers.get("Cookie"));
+  const token = session.get("auth_token");
+
+  // Si el usuario ya está autenticado, lo redirigimos al dashboard
+  if (token) {
+    return redirect("/dashboard");
+  }
+
+  return json({});
 }
 
 // Componente de Login
 export default function Login() {
+  const actionData = useActionData<{ error?: string }>();
   const [disabled, setDisabled] = useState(true);
   const [user, setUser] = useState<userLogin>({
     username: "",
@@ -70,10 +81,11 @@ export default function Login() {
     }
   }, [user]);
 
-  // Manejar el error desde el action
-  const handleError = (error: string | null) => {
-    setErrorMessage(error);
-  };
+  useEffect(() => {
+    if (actionData?.error) {
+      setErrorMessage(actionData.error);
+    }
+  }, [actionData]);
 
   return (
     <body className="
@@ -89,11 +101,6 @@ export default function Login() {
           space-y-4 bg-gray-100 dark:bg-[#00091d] rounded-lg z-40 text-blue-500
           w-1/3 flex flex-col p-4 justify-center items-center shadow-lg shadow-black
           "
-          onSubmit={(e) => {
-            // Cuando se envía el formulario, reiniciamos el mensaje de error
-            setErrorMessage(null);
-          }}
-          replace
         >
           <h2 className="text-2xl text-center font-black">
             Login
@@ -112,7 +119,7 @@ export default function Login() {
             name="username"
             value={user.username}
             onChange={(e) => setUser({ ...user, username: e.target.value })}
-            className="border-2 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
+            className="border-2 px-4 py-4 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
           />
           <InputField
             type="password"
@@ -120,12 +127,13 @@ export default function Login() {
             name="password"
             value={user.password}
             onChange={(e) => setUser({ ...user, password: e.target.value })}
-            className="border-2 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
+            className="border-2 px-4 py-4 border-gray-400 rounded-lg dark:bg-gray-700 dark:border-none dark:text-gray-200"
           />
 
           <button
             className="bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded cursor-pointer"
             disabled={disabled}
+            type="submit"
           >
             Login
           </button>
