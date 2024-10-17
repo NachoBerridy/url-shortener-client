@@ -21,3 +21,13 @@ export type User = {
 export type token = {
   token: string;
 }
+
+export interface ISession {
+  auth_token?: string;
+  user?: User;
+}
+
+export interface dashboardLoader {
+  session: ISession;
+  api: string;
+}

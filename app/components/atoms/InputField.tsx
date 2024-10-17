@@ -19,11 +19,10 @@ export default function InputField({ type, placeholder, value, onChange, classNa
         onChange={onChange}
         name={name || ''}
         className={`
-          appearance-none 
+          ${className} appearance-none 
           bg-transparent w-full py-2 
-          px-3 dark:text-gray-700 leading-tight 
+          px-3 leading-tight 
           focus:outline-none text-gray-200
-          ${className}
         `}
       />
       {

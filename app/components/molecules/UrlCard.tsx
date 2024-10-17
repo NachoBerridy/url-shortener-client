@@ -1,3 +1,6 @@
+import { useLoaderData } from "@remix-run/react";
+import { dashboardLoader } from "~/interfaces/user";
+
 interface UrlCardProps {
   shortUrl: string;
   originalUrl: string;
@@ -7,7 +10,7 @@ interface UrlCardProps {
 
 export default function UrlCard({ shortUrl, originalUrl, name, clickCount }: UrlCardProps) {
 
-  const api = "http://127.0.0.1:8000/"
+  const { api } = useLoaderData<dashboardLoader>();
 
   shortUrl = api + shortUrl
 

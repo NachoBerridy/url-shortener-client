@@ -22,7 +22,6 @@ export default function UrlForm({ placeholder, buttonText, onClick, user }: Prim
   const [urlError, setUrlError] = useState<string | null>(null);
 
   const handleSubmit = (e: React.MouseEvent<HTMLButtonElement>) => {
-    console.log('submit')
     e.preventDefault();
     onClick(url, name);
   }
@@ -78,6 +77,7 @@ export default function UrlForm({ placeholder, buttonText, onClick, user }: Prim
           value={url}
           onChange={(e) => setUrl(e.target.value)}
           error={urlError}
+          className="dark:text-gray-600"
         />
       </div>
       <PrimaryButton
@@ -93,7 +93,6 @@ export default function UrlForm({ placeholder, buttonText, onClick, user }: Prim
         className={`fixed inset-0 z-50 bg-black bg-opacity-50 ${showModal ? 'block' : 'hidden'}`}
         tabIndex={-1}
         onClick={() => {
-          console.log('click')
           setShowModal(false)
         }}
       >

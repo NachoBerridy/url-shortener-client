@@ -4,13 +4,17 @@ import { getSession } from "../services/session";
 import { LoaderFunctionArgs } from "@remix-run/node";
 import { useLoaderData } from "@remix-run/react";
 import Header from "../components/organisms/Header";
-import { User } from "../interfaces/user";
+import { User, dashboardLoader } from "../interfaces/user";
 import DashboardMain from "~/components/organisms/DashboardMain";
+
 export async function loader({ request }: LoaderFunctionArgs) {
   const session = await getSession(request.headers.get('Cookie'));
-  return session.data;
+  const api = process.env.API_URL;
+  return {
+    "session": session.data,
+    api
+  }
 }
-
 interface url {
   clicks: number;
   long_url: string;
@@ -20,25 +24,22 @@ interface url {
 
 export default function Dashboard() {
 
-  const data = useLoaderData<{ auth_token?: string, user?: User }>();
+  const { session } = useLoaderData<dashboardLoader>();
   const [user, setUser] = useState<User | null>(null);
   const [urls, setUrls] = useState<url[]>([]);
   useEffect(() => {
-    console.log(data);
     const fetchUser = async () => {
       try {
-        if (data?.auth_token) {
-          const userData = await getUser(data.auth_token);
-          const urlsData = await getUsersUrls(data.auth_token);
+        if (session?.auth_token) {
+          const userData = await getUser(session.auth_token);
+          const urlsData = await getUsersUrls(session.auth_token);
           if (!userData.error) {
             setUser(userData);
           } else {
             console.error(userData.error);
-            console.log(userData);
           }
           if (!urlsData.error) {
             setUrls(urlsData);
-            console.log(urlsData);
           } else {
             console.error(urlsData.error);
           }
@@ -49,17 +50,17 @@ export default function Dashboard() {
     };
 
     fetchUser();
-  }, [data]);
+  }, [session]);
 
 
   return (
-    <body className=" flex h-screen items-center justify-start w-screen flex-col dark:text-white text-black
+    <div className=" flex h-screen items-center justify-start w-screen flex-col dark:text-white text-black
       z-[-2] dark:bg-[#000000] dark:bg-[radial-gradient(#ffffff33_1px,#00091d_1px)] dark:bg-[size:20px_20px]
       bg-[radial-gradient(#e5e7eb_1px,transparent_1px)] [background-size:16px_16px] bg-slate-100
     "
     >
       <Header src={null} />
       <DashboardMain urls={urls} user={user} />
-    </body>
+    </div>
   );
 }

@@ -12,7 +12,7 @@ interface DashboardMainProps {
 }
 
 export default function DashboardMain({ urls, user }: DashboardMainProps) {
-  console.log(user);
+
   return (
     <main className="flex flex-col gap-8  items-start justify-start mt-10 w-full max-w-[1020px] relative p-4">
       <h1
